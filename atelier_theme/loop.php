@@ -33,7 +33,11 @@ $the_query = new WP_Query($args);
             case 'course':
                 $duration = get_field('sessions') . ' x ' . $duration;
                 break;
-            case 'workshop' || 'holiday_workshop':
+            case 'workshop':
+                $duration = get_field('duration_1', $postId);
+                if (get_field('duration_2', $postId)) $duration .= ' + ' . get_field('duration_2', $postId);
+                break;
+            case 'holiday_workshop':
                 $duration = get_field('duration_1', $postId);
                 if (get_field('duration_2', $postId)) $duration .= ' + ' . get_field('duration_2', $postId);
                 break;
