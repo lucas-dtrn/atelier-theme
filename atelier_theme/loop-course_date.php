@@ -15,7 +15,6 @@
 //     $date = strtotime(get_field('date', $post->ID));
 //     $date = date_i18n('j. F Y', $date);
 //     $course = get_field('course_time', $post->ID);
-//     d($date, count($course));
 // }
 ?>
 
@@ -34,7 +33,6 @@
         <article class="date-list__item">
 
             <?= $date ?>
-            <?php d(count(get_field('course_time', $postId))) ?>
 
         </article>
 

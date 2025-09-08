@@ -239,7 +239,7 @@ $calendarGrid = getCalendarGrid($target_year, $target_month);
                         <path d="M15 1H1L6.6 7.83222V12.5556L9.4 14V7.83222L15 1Z" stroke="#042135" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </button>
-                <a template-booking-button class="book">
+                <a template-booking-button class="book" target="_blank">
                     <svg width="16" height="15" viewBox="0 0 16 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12.375 13.125L8 10L3.625 13.125V3.125C3.625 2.79348 3.7567 2.47554 3.99112 2.24112C4.22554 2.0067 4.54348 1.875 4.875 1.875H11.125C11.4565 1.875 11.7745 2.0067 12.0089 2.24112C12.2433 2.47554 12.375 2.79348 12.375 3.125V13.125Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>

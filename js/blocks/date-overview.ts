@@ -7,14 +7,17 @@ const $ = window.jQuery; // Use jquery from wordpress
 import { Navigation } from 'swiper/modules';
 import Swiper from 'swiper';
 import scrollView from '../functions/scrollView';
+import { format, parseISO } from 'date-fns';
+import { format as formatter } from '@repo/utils';
+import { ApiWordpressDatesResponse, ProductType } from '@repo/typescript/types';
 
 Swiper.use([Navigation]);
 
-const categoryTranslation = {
+const categoryTranslation: Record<Category, string> = {
 	'course-child': 'Kurs für Kinder',
 	'course-adult': 'Kurs für Erwachsene',
 	workshop: 'Workshop',
-	'holiday-workshop': 'Ferienworkshop',
+	holiday_workshop: 'Ferienprogramm',
 };
 
 class DateOverview {
@@ -22,9 +25,9 @@ class DateOverview {
 	allDates: {
 		year: number;
 		month: number;
-		dates: DateResponse[];
+		dates: DateItem[];
 	}[] = [];
-	dates: DateResponse[];
+	dates: DateItem[];
 	calendar: DateOverviewCalendar;
 	list: DateOverviewList;
 	filter: DateOverviewFilter;
@@ -32,6 +35,7 @@ class DateOverview {
 	currentYear: number;
 	currentMonth: number;
 	isInitial: boolean = true;
+	dateCache: { [key: string]: DateItem[] } = {};
 
 	constructor(
 		calendarElement: HTMLElement,
@@ -69,7 +73,7 @@ class DateOverview {
 		this.currentMonth = month;
 
 		// Check if dates of this month are already fetched
-		if (this.fetchedOnce) {
+		if (this.getIsMonthCached(year, month)) {
 			this.calendar.showMonth(year, month);
 			this.list.showMonth(year, month);
 		} else {
@@ -109,7 +113,7 @@ class DateOverview {
 		});
 
 		this.filter.onFilterCategory((category) => {
-			if (category === null) {
+			if (category === null || category === '') {
 				this.calendar.setFilter(null);
 				this.list.setFilter(null);
 			} else {
@@ -147,8 +151,18 @@ class DateOverview {
 		});
 
 		this.selector.onSelectCourseTime((productId, courseTimeId) => {
-			this.calendar.setFilter({ type: 'product', productId, courseTimeId });
-			this.list.setFilter({ type: 'product', productId, courseTimeId });
+			this.calendar.setFilter({
+				type: 'product',
+				productId,
+				courseTimeId,
+				productCategory: null, // REVIEW
+			});
+			this.list.setFilter({
+				type: 'product',
+				productId,
+				courseTimeId,
+				productCategory: null, // REVIEW
+			});
 			this.setUrlParams(productId, null, courseTimeId);
 		});
 
@@ -156,6 +170,14 @@ class DateOverview {
 			this.currentMonth = month;
 			this.currentYear = year;
 		});
+	}
+
+	getIsMonthCached(year: number, month: number) {
+		const thisClone = this;
+		const cacheKey = `${year}-${month}`;
+
+		// Check if the data is already in the cache
+		return thisClone.dateCache[cacheKey] !== undefined;
 	}
 
 	async fetchDates(year: number, month: number) {
@@ -170,7 +192,7 @@ class DateOverview {
 		const cacheKey = `${year}-${month}`;
 
 		// Check if the data is already in the cache
-		if (thisClone.dateCache[cacheKey]) {
+		if (this.getIsMonthCached(year, month)) {
 			const cachedDates = thisClone.dateCache[cacheKey];
 
 			// Use the cached data
@@ -207,8 +229,9 @@ class DateOverview {
 				year: year,
 				month: month,
 			},
-			success: function (response) {
-				const dates: DateResponse[] = response.data;
+			success: function (response: { success: boolean; data: ApiWordpressDatesResponse }) {
+				const dates = response.data;
+				console.log('dates', dates);
 
 				// Cache the fetched data
 				thisClone.dateCache[cacheKey] = dates;
@@ -268,7 +291,7 @@ class DateOverview {
 
 	setUrlParams(
 		productId: number | null | undefined,
-		productCategory: Category | null | undefined,
+		productCategory: CategoryFilter,
 		courseTimeId: number | null | undefined
 	) {
 		// Save filter in URL when filter is not null (Examply: url?productCategory=workshop&productId=123) and delete parameters when values are null
@@ -307,7 +330,7 @@ class DateOverviewCalendar {
 
 	// Without default values
 	container: HTMLElement;
-	dates: DateResponse[];
+	dates: DateItem[];
 	monthLabelSlider: Swiper;
 	monthLabelSliderYear: Swiper;
 	daysContainer: HTMLElement;
@@ -318,7 +341,7 @@ class DateOverviewCalendar {
 	private onPrevCallback: () => void;
 	private onUpdateCurrentMonthCallback: (year: number, month: number) => void;
 
-	constructor(container, currentYear: number, currentMonth: number) {
+	constructor(container: HTMLElement, currentYear: number, currentMonth: number) {
 		this.container = container;
 		this.currentYear = currentYear;
 		this.currentMonth = currentMonth;
@@ -456,12 +479,12 @@ class DateOverviewCalendar {
 
 		if (!this.monthLabelSlider) throw new Error('No monthLabelSlider found');
 	}
-	public fillGridData(dates: DateResponse[]) {
+	public fillGridData(dates: DateItem[]) {
 		// FUTURE: Minimize forEach calls
 
 		// fill newDates with dates
 		dates.forEach((date) => {
-			const dateString = new Date(date.date).toISOString().split('T')[0];
+			const dateString = format(parseISO(date.date), 'yyyy-MM-dd');
 
 			this.monthGrids.forEach((monthGrid) => {
 				monthGrid.items.forEach((item) => {
@@ -488,6 +511,7 @@ class DateOverviewCalendar {
 		const monthGrid = this.monthGrids.find(
 			(monthGrid) => monthGrid.year === year && monthGrid.month === month
 		)?.items as MonthGridItem[];
+		console.log('Calendar: monthGrid', year, month, monthGrid);
 
 		if (!monthGrid) throw new Error('No monthGrid found');
 
@@ -496,13 +520,8 @@ class DateOverviewCalendar {
 			this.renderGridItem(item);
 		});
 	}
-	renderGridItem(item: MonthGridItem) {
-		// Append existing element
-		if (item.element) {
-			this.daysContainer.appendChild(item.element);
-			return;
-		}
 
+	renderGridItem(item: MonthGridItem) {
 		let templateQuery = '';
 		if (item.currentMonth) {
 			if (item.products) {
@@ -531,7 +550,7 @@ class DateOverviewCalendar {
 		// Add class .--past when date is in the past
 		const today = new Date();
 		const itemDate = new Date(item.date);
-		if (itemDate < today) {
+		if (itemDate.setUTCHours(0, 0, 0, 0) < today.setUTCHours(0, 0, 0, 0)) {
 			item.element.classList.add('--past');
 		}
 
@@ -776,7 +795,7 @@ class DateOverviewList {
 
 	// Without default values
 	container: HTMLElement;
-	dates: DateResponse[];
+	dates: DateItem[];
 
 	// Event listeners
 	private onFilterProductCallback: (
@@ -785,7 +804,7 @@ class DateOverviewList {
 		courseTimeId?: number
 	) => void;
 
-	constructor(container, currentYear: number, currentMonth: number) {
+	constructor(container: HTMLElement, currentYear: number, currentMonth: number) {
 		this.container = container;
 		this.currentYear = currentYear;
 		this.currentMonth = currentMonth;
@@ -816,22 +835,26 @@ class DateOverviewList {
 			});
 		}
 	}
-	public fillListData(dates: DateResponse[]) {
+
+	public fillListData(dates: DateItem[]) {
 		// FUTURE: Minimize forEach calls
 
 		// fill newDates with dates
 		dates.forEach((date) => {
 			// get year and month of date
-			const dateYear = new Date(date.date).getFullYear();
-			const dateMonth = new Date(date.date).getMonth() + 1;
-			const dateDay = new Date(date.date).getDate();
+			const parsedDate = parseISO(date.date);
+			const dateYear = Number(format(parsedDate, 'yyyy'));
+			const dateMonth = Number(format(parsedDate, 'MM'));
+			const dateDay = Number(format(parsedDate, 'dd'));
 
 			// date.date.date as string
-			const dateString = new Date(date.date).toISOString().split('T')[0];
+			const dateString = format(parsedDate, 'yyyy-MM-dd');
 
 			const monthList = this.monthLists.find(
 				(monthList) => monthList.year === dateYear && monthList.month === dateMonth
 			) as MonthList;
+
+			if (!monthList) return;
 
 			if (!monthList.items) monthList.items = [];
 			monthList.items.push({
@@ -855,6 +878,7 @@ class DateOverviewList {
 		const monthList = this.monthLists.find(
 			(monthList) => monthList.year === year && monthList.month === month
 		)?.items as MonthListItem[];
+		console.log('monthList', monthList);
 
 		if (!monthList) throw new Error('No monthList found');
 
@@ -947,7 +971,7 @@ class DateOverviewList {
 		// Do not render Item if date is in the past
 		const today = new Date();
 		const itemDate = new Date(item.date);
-		if (itemDate < today) return;
+		if (itemDate.setUTCHours(0, 0, 0, 0) < today.setUTCHours(0, 0, 0, 0)) return;
 
 		if (!item.product) throw new Error('No product found');
 
@@ -996,14 +1020,19 @@ class DateOverviewList {
 		if (!title) throw new Error('No title found');
 		// add formatted day from this.currentMonth using Intl.DateTimeFormat
 		title.href = item.product.url;
-		let titleString = item.product.title;
-		if (item.product.courseTimeNumber) titleString += ` ${item.product.courseTimeNumber}`;
-		title.innerHTML = titleString;
+		title.innerHTML = item.product.title;
+		if (
+			item.product.subtitle &&
+			(item.product.category === 'course-child' || item.product.category === 'course-adult')
+		) {
+			title.innerHTML += ` (${item.product.subtitle})`;
+		}
 
 		// NOTE - Time
 		const time = element.querySelector('[template-time]') as HTMLElement;
 		if (!time) throw new Error('No time found');
 		time.innerText = `${item.product.starttime} - ${item.product.endtime} Uhr`;
+		// time.innerText = `${formatter.time(item.product.starttime)} - ${formatter.time(item.product.endtime)} Uhr`;
 
 		// Set bookung url
 		const bookingButton = element.querySelector('[template-booking-button]') as HTMLLinkElement;
@@ -1157,7 +1186,7 @@ class DateOverviewFilter {
 	// Event listeners
 	private onFilterCategoryCallback: (category: CategoryFilter) => void;
 
-	constructor(container) {
+	constructor(container: HTMLElement) {
 		this.container = container;
 		this.buttons = this.container.querySelectorAll('#date-overview__filter__button');
 
@@ -1241,7 +1270,7 @@ class DateOverviewSelector {
 	selectorOptions: SelectorOption[] = [];
 
 	// Without default values
-	dates: DateResponse[];
+	dates: DateItem[];
 	container: HTMLElement;
 	products: ProductType[];
 	select: HTMLSelectElement;
@@ -1259,7 +1288,7 @@ class DateOverviewSelector {
 	) => void;
 	private onSelectCourseTimeCallback: (productId: number, courseTimeId: number) => void;
 
-	constructor(container) {
+	constructor(container: HTMLElement) {
 		this.container = container;
 		this.select = this.container.querySelector('select') as HTMLSelectElement;
 		this.label = this.container.querySelector('label') as HTMLElement;
@@ -1298,7 +1327,7 @@ class DateOverviewSelector {
 			this.selected = productId;
 		});
 	}
-	fillSelectorData(dates: DateResponse[]) {
+	fillSelectorData(dates: DateItem[]) {
 		this.dates = dates;
 
 		// Create array of all products without duplicates
@@ -1401,11 +1430,7 @@ class DateOverviewSelector {
 			if (!courseTime.weekday) throw new Error('No weekday found');
 
 			// Set button label
-			span.textContent = courseTime.weekday.label;
-
-			// Add courseTimeNumber to span if available
-			if (courseTime.courseTimeNumber)
-				span.innerText = span.innerText + ' ' + courseTime.courseTimeNumber;
+			span.textContent = formatter.weekday(courseTime.weekday);
 
 			button.appendChild(span);
 			button.setAttribute('role', 'button');
@@ -1550,44 +1575,8 @@ type SelectorOption = {
 	items: MonthListItem[];
 };
 
-// API response
-type ProductType = {
-	ID: number;
-	url: string;
-	starttime: string;
-	endtime: string;
-	title: string;
-	category: Category;
-	group: {
-		value: string;
-		label: string;
-	};
-	bookingUrl: string;
-	thumbnail: string;
-	courseTimeNumber?: string;
-	courseTimeId?: number;
-	weekday?: number;
-};
-
-type DateResponse = {
-	date: string;
-	product: ProductType;
+type DateItem = ApiWordpressDatesResponse[number] & {
 	listElement?: HTMLElement;
 };
 
 type CategoryFilter = Category | null | '';
-
-// type CourseTimes = {
-// 	product: ProductType
-// }[]
-
-// type Weekdays = {
-// 	[weekday: number]: {
-// 		[courseTimeId: number]: {
-// 			[productId: number]: {
-// 				title: string;
-// 				category: Category;
-// 			};
-// 		};
-// 	};
-// };

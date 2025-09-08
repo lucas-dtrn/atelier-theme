@@ -4,131 +4,25 @@
 /*------------------------------------*/
 
 // Add ajaxurl to frontend
-function myplugin_ajaxurl() {
+function myplugin_ajaxurl()
+{
     echo '<script type="text/javascript">
     var ajaxurl = "' . admin_url('admin-ajax.php') . '";
     </script>';
 }
 
-// Get all dates of a product
-function date_overview_get_product_dates() {
-    $productId = $_POST['productId'];
+function date_overview_get_product_dates()
+{
     $year = $_POST['year'];
     $month = $_POST['month'];
-
     $yearEnd = $year + 1;
 
-    /* ------------------------------------ */
-    /* Courses
-    /* ------------------------------------ */
-
-    // Query dates
-    $courseDateIds = get_posts(array(
-        'post_type' => 'course_date',
-        'posts_per_page' => -1,
-        'fields' => 'ids',
-
-        // Get all dates of current month
-        'meta_query'     => array(
-            array(
-                'key'     => 'date', // Name des ACF-Felds
-                'value'   => array($year . "-" . $month . "-01", $yearEnd . "-" . $month . "-31"), // Format: JJJJ-MM-TT
-                'compare' => 'BETWEEN', // Abgleich auf einen Wert zwischen dem 1. und letzten Tag des Monats
-                'type'    => 'DATE',
-            ),
-        ),
-    ));
-
-    // Get data of dates
-    $courseDates = [];
-    foreach ($courseDateIds as $dateId) {
-        $date = get_field('date', $dateId);
-        $date = new DateTime($date);
-        $date->setTimezone(new DateTimeZone('Europe/Berlin'));
-        $date = $date->format('Y-m-d'); // convert into string of format Y-m-d
-
-        // get all courses of this date
-        $courseTimes = get_field('course_time', $dateId);
-
-        foreach ($courseTimes as $timeId) {
-            $course = get_field('course', 'course_time_' . $timeId)[0];
-            $courseId = $course->ID;
-            $courseDates[] = array(
-                'date' => $date,
-                'product' => array(
-                    'ID' => $courseId,
-                    "url" => get_permalink($courseId),
-                    'starttime' =>  get_field('starttime', 'course_time_' . $timeId),
-                    'endtime' =>  get_field('endtime', 'course_time_' . $timeId),
-                    'title' => $course->post_title,
-                    'category' => $course->post_type . '-' . get_field('group', $courseId)['value'],
-                    'group' => get_field('group', $courseId),
-                    'courseTimeId' => $timeId,
-                    'courseTimeNumber' => get_field('nummerierung', 'course_time_' . $timeId),
-                    'weekday' => get_field('weekday', 'course_time_' . $timeId),
-                    'bookingUrl' => BOOK_URL . '/?productId=' . $courseId . '&courseTime=' . $timeId . '&startDate=' . $dateId,
-                    'thumbnail' => get_the_post_thumbnail_url($courseId, 'thumbnail')
-                )
-            );
-        }
-    }
-
-    /* ------------------------------------ */
-    /* Workshops
-    /* ------------------------------------ */
-
-    // Query dates
-    $workshopDateIds = get_posts(array(
-        'post_type' => 'workshop_date',
-        'posts_per_page' => -1,
-        'fields' => 'ids',
-
-        // Get all items with date in current month
-        'meta_query'     => array(
-            'relation' => 'OR',
-            array(
-                'key'     => 'date_1_date', // Name des ACF-Felds
-                'value'   => array($year . "-" . $month . "-01", $yearEnd . "-" . $month . "-31"), // Format: JJJJ-MM-TT
-                'compare' => 'BETWEEN', // Abgleich auf einen Wert zwischen dem 1. und letzten Tag des Monats
-                'type'    => 'DATE',
-            ),
-            array(
-                'key'     => 'date_2_date', // Name des ACF-Felds
-                'value'   => array($year . "-" . $month . "-01", $yearEnd . "-" . $month . "-31"), // Format: JJJJ-MM-TT
-                'compare' => 'BETWEEN', // Abgleich auf einen Wert zwischen dem 1. und letzten Tag des Monats
-                'type'    => 'DATE',
-            ),
-        ),
-    ));
-
-    // Get data of dates
-    $workshopDates = [];
-    foreach ($workshopDateIds as $dateId) {
-        $dateField = get_field('date_1', $dateId);
-        $date = new DateTime($dateField['date']);
-        $date->setTimezone(new DateTimeZone('Europe/Berlin'));
-        $date = $date->format('Y-m-d'); // convert into string of format Y-m-d
-
-        // get all workshops of this date
-        $workshops = get_field('workshop', $dateId);
-
-        foreach ($workshops as $workshopId) {
-            $workshopDates[] = array(
-                'date' => $date,
-                'product' => array(
-                    'ID' => $workshopId,
-                    'url' => get_permalink($workshopId),
-                    'starttime' =>  $dateField['starttime'],
-                    'endtime' =>  $dateField['endtime'],
-                    'title' => get_the_title($workshopId),
-                    'category' => get_post_type($workshopId),
-                    'group' => get_field('group', $workshopId),
-                    'bookingUrl' => BOOK_URL . '/?productId=' . $workshopId . '&workshopDate=' . $dateId,
-                    'thumbnail' => get_the_post_thumbnail_url($course->ID, 'thumbnail')
-                )
-            );
-        }
-    }
+    $url = BOOK_URL . "/api/wordpress/dates?month=$month&year=$year";
+    $response = file_get_contents($url);
+    if ($response === false) return [];
+    $data = json_decode($response, true);
+    if (json_last_error() !== JSON_ERROR_NONE) return [];
+    $apiDates = $data;
 
     /* ------------------------------------ */
     /* Holiday Workshops
@@ -167,7 +61,7 @@ function date_overview_get_product_dates() {
         $date = $date->format('Y-m-d'); // convert into string of format Y-m-d
 
         // get all workshops of this date
-        $workshops = get_field('workshop', $dateId);
+        $workshops = get_field('holiday_workshop', $dateId);
 
         foreach ($workshops as $workshopId) {
             $holidayWorkshopDates[] = array(
@@ -179,16 +73,16 @@ function date_overview_get_product_dates() {
                     'endtime' =>  $dateField['endtime'],
                     'title' => get_the_title($workshopId),
                     'category' => get_post_type($workshopId),
-                    'group' => get_field('group', $workshopId),
-                    'bookingUrl' => BOOK_URL . '/?productId=' . $workshopId . '&workshopDate=' . $dateId,
-                    'thumbnail' => get_the_post_thumbnail_url($course->ID, 'thumbnail')
+                    'group' => get_field('group', $workshopId)["value"],
+                    'bookingUrl' => get_field("booking_link", $dateId) ?? get_field("holiday_workshops_booking_link_fallback", "holiday_workshop_options"),
+                    'thumbnail' => get_the_post_thumbnail_url($workshopId, 'thumbnail')
                 )
             );
         }
     }
 
     // Merge all dates
-    $dates = array_merge($courseDates, $workshopDates, $holidayWorkshopDates);
+    $dates = array_merge($apiDates, $holidayWorkshopDates);
 
     // Sort dates by date
     usort($dates, function ($a, $b) {

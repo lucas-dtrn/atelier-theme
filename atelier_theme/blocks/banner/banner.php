@@ -13,7 +13,6 @@ $produkte = get_field('produkte');
 
     <?php if ($produkte) : ?>
         <?php foreach ($produkte as $produkt) :
-            // d($produkt);
             $id = $produkt->ID;
             $postStatus = $produkt->post_status;
 

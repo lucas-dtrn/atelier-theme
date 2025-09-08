@@ -1,14 +1,17 @@
 <?php
-function d(...$vars) {
+function d(...$vars)
+{
     echo '<pre>', var_dump(...$vars), '</pre>';
 }
 
-function dd(...$vars) {
+function dd(...$vars)
+{
     echo '<pre>', var_dump(...$vars), '</pre>';
     die();
 }
 
-function substrwords($text, $maxchar, $end = '...') {
+function substrwords($text, $maxchar, $end = '...')
+{
     if (!$text) return;
 
     if (strlen($text) > $maxchar || $text == '') {
@@ -31,7 +34,8 @@ function substrwords($text, $maxchar, $end = '...') {
     return $output;
 }
 
-function translateString($string) {
+function translateString($string)
+{
     $translations = array(
         'adult' => 'Erwachsene',
         'child' => 'Kinder',
@@ -45,13 +49,15 @@ function translateString($string) {
     return $translations[$string] ?? $string;
 }
 
-function translateReadableDateToGerman($str) {
+function translateReadableDateToGerman($str)
+{
     $searchVal = array("March", "May", "June", "July", "October", "December", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
     $replaceVal = array("März", "Mai", "Juni", "Juli", "Oktober", "Dezember", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag");
     return str_replace($searchVal, $replaceVal, $str);
 }
 
-function getUtcTimestamp($str) {
+function getUtcTimestamp($str)
+{
     // Aktuelle Zeitzone speichern
     $aktuelle_zeitzone = date_default_timezone_get();
 
@@ -89,7 +95,8 @@ function getUtcTimestamp($str) {
     return $berlin_zeit->getTimestamp();
 }
 
-function adjustTimezone($str) {
+function adjustTimezone($str)
+{
     // Zeitzone für Berlin festlegen
     // date_default_timezone_set('Europe/Berlin');
 
@@ -121,13 +128,15 @@ function adjustTimezone($str) {
     return $berlin_zeit->format('H:i');
 }
 
-function get_paper_structure() {
+function get_paper_structure()
+{
     $template_directory_uri = get_template_directory_uri();
     return "<img class='paper-structure' src='{$template_directory_uri}/assets/img/elements/paper_structure_500x.jpg' alt=''>";
     // src="https://atelier-delatron.de/wp-content/themes/atelier_theme/assets/img/paper_structure.webp"
 }
 
-function load_product_colors($postType, $group = 'child'): string {
+function load_product_colors($postType, $group = 'child'): string
+{
     $color = "";
     if ($postType == 'course') : ?>
         <?php if ($group !== 'adult') :
@@ -194,7 +203,8 @@ function load_product_colors($postType, $group = 'child'): string {
         }
 
 
-        function product_has_dates($postId) {
+        function product_has_dates($postId)
+        {
             $postType = get_post_type($postId);
             $hasDates = false;
 
@@ -227,7 +237,118 @@ function load_product_colors($postType, $group = 'child'): string {
             return $hasDates;
         }
 
-        function get_course_dates(int $timeId) {
+        function get_has_dates_map()
+        {
+            $url = BOOK_URL . "/api/wordpress/has-dates-map";
+            $response = file_get_contents($url);
+
+            if ($response === false) return [];
+
+            $data = json_decode($response, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) return [];
+
+            return $data;
+        }
+
+        function get_all_recurring_terms()
+        {
+            $url = BOOK_URL . "/api/wordpress/recurring-terms/";
+
+            $response = file_get_contents($url);
+
+            if ($response === false) {
+                // Handle error if the request fails
+                return [];
+            }
+
+            $data = json_decode($response, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                // Handle error if JSON decoding fails
+                return [];
+            }
+
+            return $data;
+        }
+
+        function get_recurring_terms(int $productId)
+        {
+            $url = BOOK_URL . "/api/wordpress/recurring-terms/" . $productId;
+
+            $response = file_get_contents($url);
+
+            if ($response === false) {
+                // Handle error if the request fails
+                return [];
+            }
+
+            $data = json_decode($response, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                // Handle error if JSON decoding fails
+                return [];
+            }
+
+            return $data;
+        }
+
+        function get_fixed_terms(int $productId)
+        {
+            $url = BOOK_URL . "/api/wordpress/fixed-terms/" . $productId;
+
+            $response = file_get_contents($url);
+
+            if ($response === false) {
+                // Handle error if the request fails
+                return [];
+            }
+
+            $data = json_decode($response, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                // Handle error if JSON decoding fails
+                return [];
+            }
+
+            return $data;
+        }
+
+        function get_course_dates(int $timeId)
+        {
+            // $api_url = 'https://buchung.atelier-delatron.de/api/getCourseDates';
+            // $response = wp_remote_get(add_query_arg('timeId', $timeId, $api_url));
+
+            // if (is_wp_error($response)) {
+            //     error_log('API-Fehler beim Abrufen von Kursdaten: ' . $response->get_error_message());
+            //     return [];
+            // }
+
+            // $body = wp_remote_retrieve_body($response);
+            // $data = json_decode($body, true);
+
+            // // dd($data);
+
+            // if (json_last_error() !== JSON_ERROR_NONE) {
+            //     error_log('Fehler beim Dekodieren der JSON-Antwort von der API: ' . json_last_error_msg());
+            //     return [];
+            // }
+
+            // // Die API sollte ein Array von Datums-IDs zurückgeben.
+            // // Ich gehe davon aus, dass die API ein Array von Timestamps oder Datumsstrings zurückgibt,
+            // // die in Timestamps umgewandelt werden können, wie es der ursprüngliche Code tat.
+            // // Passen Sie dies bei Bedarf an die tatsächliche Struktur der API-Antwort an.
+            // $dates = [];
+            // if (isset($data['dates']) && is_array($data['dates'])) {
+            //     $dates = array_map(function ($dateItem) {
+            //         // Annahme: dateItem ist ein Datumsstring, der von strtotime verarbeitet werden kann.
+            //         // Wenn die API direkt Timestamps zurückgibt, ist keine Umwandlung erforderlich.
+            //         return strtotime($dateItem);
+            //     }, $data['dates']);
+            // }
+
+            // return $dates;
+
             // Check if course_time has dates in the future
             $dates = get_field('dates', 'course_time_' . $timeId);
 
@@ -254,7 +375,8 @@ function load_product_colors($postType, $group = 'child'): string {
             return $dates;
         }
 
-        function get_booking_button($postId, $hasDates = false) {
+        function get_booking_button($postId, $hasDates = false)
+        {
             global $color;
             $buttonColor = $color;
             $postType = get_post_type($postId);
@@ -263,7 +385,8 @@ function load_product_colors($postType, $group = 'child'): string {
 
             if ($hasDates) {
                 $blocked = is_booking_scheduled();
-                $booking_link = get_permalink($postId) . '#book';
+                // $booking_link = get_permalink($postId) . '#book';
+                $booking_link = BOOK_URL . "/buchung/$postId";
 
                 if ($postType === 'holiday_workshop' && $blocked) {
                     $bookable_from = get_field('bookable_from', 'holiday_workshop_options');
@@ -275,6 +398,7 @@ function load_product_colors($postType, $group = 'child'): string {
                         'button' => array(
                             'url' => $booking_link,
                             'title' => 'Buchung ab ' . $bookable_from,
+                            'target' => '_blank',
                         ),
                         'icon' => 'bookmark',
                         'color' => $postType === 'course' ? 'course-' . $group['value'] : $buttonColor
@@ -287,6 +411,7 @@ function load_product_colors($postType, $group = 'child'): string {
                     'button' => array(
                         'url' => $booking_link,
                         'title' => 'Jetzt Buchen',
+                        'target' => '_blank',
                     ),
                     'icon' => 'bookmark',
                     'color' => $buttonColor
@@ -306,7 +431,8 @@ function load_product_colors($postType, $group = 'child'): string {
             ));
         }
 
-        function is_booking_scheduled(): bool {
+        function is_booking_scheduled(): bool
+        {
             $blocked = get_field('booking_scheduled', 'holiday_workshop_options');
             $bookable_from = get_field('bookable_from', 'holiday_workshop_options');
 
@@ -320,7 +446,8 @@ function load_product_colors($postType, $group = 'child'): string {
             return $blocked;
         }
 
-        function get_booking_schedule_date(): string {
+        function get_booking_schedule_date(): string
+        {
             $bookable_from = get_field('bookable_from', 'holiday_workshop_options');
             $bookable_from = date('d.m.Y', strtotime($bookable_from));
             return $bookable_from;

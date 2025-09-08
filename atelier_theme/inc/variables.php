@@ -3,7 +3,8 @@ $_ENV = include($_SERVER['DOCUMENT_ROOT'] . '/config/env.php');
 define("ENV", $_ENV['ENV']);
 
 if (ENV === 'development') {
-    define("BOOK_URL", "http://localhost:4300");
+    // define("BOOK_URL", "https://dev.buchung.atelier-delatron.de");
+    define("BOOK_URL", "https://buchung.atelier-delatron.de");
 } else {
     define("BOOK_URL", "https://buchung.atelier-delatron.de");
 }

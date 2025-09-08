@@ -9,6 +9,9 @@
 		"lint": "eslint"
 	},
 	"dependencies": {
+		"@repo/utils": "workspace:*",
+		"axios": "^1.7.7",
+		"date-fns": "^4.1.0",
 		"jquery": "^3.7.1",
 		"js-cookie": "^3.0.5",
 		"photoswipe": "^5.4.3",
@@ -17,15 +20,16 @@
 		"tippy.js": "^6.3.7"
 	},
 	"devDependencies": {
+		"@repo/typescript": "workspace:*",
 		"@types/jquery": "^3.5.29",
-		"@typescript-eslint/eslint-plugin": "^7.1.0",
-		"@typescript-eslint/parser": "^7.1.0",
+		"@typescript-eslint/eslint-plugin": "^8.32.1",
+		"@typescript-eslint/parser": "^8.32.1",
 		"css-loader": "^6.10.0",
 		"esbuild-loader": "^4.0.3",
 		"eslint": "^8.57.0",
 		"eslint-webpack-plugin": "^4.0.1",
-		"prettier": "^3.3.3",
-		"prettier-plugin-tailwindcss": "^0.5.4",
+		"prettier": "^3.5.3",
+		"prettier-plugin-tailwindcss": "^0.6.11",
 		"sass": "^1.71.1",
 		"sass-loader": "^14.1.1",
 		"style-loader": "^3.3.4",

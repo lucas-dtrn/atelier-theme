@@ -4,6 +4,8 @@ $args = array(
     'numberposts'   => 1,
 );
 
+$hasDatesMap = get_has_dates_map();
+
 // query
 $the_query = new WP_Query($args);
 ?>
@@ -15,8 +17,7 @@ $the_query = new WP_Query($args);
         $postId = get_the_ID();
         $postType = get_post_type($postId);
 
-        // Dates
-        $hasDates = product_has_dates($postId);
+        $hasDates = true;
 
         // Allgemein
         $title = get_the_title();
@@ -31,9 +32,11 @@ $the_query = new WP_Query($args);
         // Set duration for each post type
         switch ($postType) {
             case 'course':
+                $hasDates = $hasDatesMap[strval($postId)]; // Check if has dates by using the booking system API
                 $duration = get_field('sessions') . ' x ' . $duration;
                 break;
             case 'workshop':
+                $hasDates = $hasDatesMap[strval($postId)]; // Check if has dates by using the booking system API
                 $duration = get_field('duration_1', $postId);
                 if (get_field('duration_2', $postId)) $duration .= ' + ' . get_field('duration_2', $postId);
                 break;
