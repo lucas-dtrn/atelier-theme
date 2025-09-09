@@ -7,9 +7,10 @@ const $ = window.jQuery; // Use jquery from wordpress
 import { Navigation } from 'swiper/modules';
 import Swiper from 'swiper';
 import scrollView from '../functions/scrollView';
-import { format, parseISO } from 'date-fns';
+import { format, formatISO, parseISO } from 'date-fns';
 import { format as formatter } from '@repo/utils';
 import { ApiWordpressDatesResponse, ProductType } from '@repo/typescript/types';
+import { toZonedTime } from 'date-fns-tz';
 
 Swiper.use([Navigation]);
 
@@ -43,8 +44,8 @@ class DateOverview {
 		filterElement: HTMLElement,
 		selectorElement: HTMLElement
 	) {
-		this.currentYear = new Date().getFullYear();
-		this.currentMonth = new Date().getMonth() + 1;
+		this.currentYear = toZonedTime(new Date(), 'Europe/Berlin').getFullYear();
+		this.currentMonth = toZonedTime(new Date(), 'Europe/Berlin').getMonth() + 1;
 
 		this.calendar = new DateOverviewCalendar(
 			calendarElement,
@@ -59,6 +60,8 @@ class DateOverview {
 
 		// Set current month
 		this.showMonth(this.currentYear, this.currentMonth);
+
+		this.fetchDates();
 	}
 
 	showMonth(year: number, month: number) {
@@ -73,12 +76,8 @@ class DateOverview {
 		this.currentMonth = month;
 
 		// Check if dates of this month are already fetched
-		if (this.getIsMonthCached(year, month)) {
-			this.calendar.showMonth(year, month);
-			this.list.showMonth(year, month);
-		} else {
-			this.fetchDates(year, month);
-		}
+		this.calendar.showMonth(year, month);
+		this.list.showMonth(year, month);
 	}
 
 	initEventListeners() {
@@ -97,6 +96,7 @@ class DateOverview {
 			}
 
 			this.showMonth(year, month);
+			this.calendar.setFilter(this.calendar.filter, false);
 		});
 
 		this.calendar.onPrev(() => {
@@ -110,6 +110,7 @@ class DateOverview {
 			}
 
 			this.showMonth(year, month);
+			this.calendar.setFilter(this.calendar.filter, false);
 		});
 
 		this.filter.onFilterCategory((category) => {
@@ -180,45 +181,8 @@ class DateOverview {
 		return thisClone.dateCache[cacheKey] !== undefined;
 	}
 
-	async fetchDates(year: number, month: number) {
+	async fetchDates() {
 		const thisClone = this;
-
-		// Initialize a cache object if it doesn't exist
-		if (!thisClone.dateCache) {
-			thisClone.dateCache = {};
-		}
-
-		// Create a unique cache key based on year and month
-		const cacheKey = `${year}-${month}`;
-
-		// Check if the data is already in the cache
-		if (this.getIsMonthCached(year, month)) {
-			const cachedDates = thisClone.dateCache[cacheKey];
-
-			// Use the cached data
-			thisClone.dates = cachedDates;
-
-			// Fill calendar and list with cached data
-			thisClone.calendar.fillGridData(cachedDates);
-			thisClone.list.fillListData(cachedDates);
-			thisClone.selector.fillSelectorData(cachedDates);
-
-			// Display month
-			thisClone.calendar.showMonth(year, month);
-			thisClone.list.showMonth(year, month);
-
-			thisClone.fetchedOnce = true;
-
-			// Set filter by url params
-			thisClone.setFilterByUrlParams();
-
-			// get all elements with class .--sceleton and remove the class
-			document.querySelectorAll('.--sceleton').forEach((element) => {
-				element.classList.remove('--sceleton');
-			});
-
-			return;
-		}
 
 		await $.ajax({
 			// @ts-ignore
@@ -226,15 +190,10 @@ class DateOverview {
 			type: 'POST',
 			data: {
 				action: 'date_overview_get_product_dates',
-				year: year,
-				month: month,
 			},
 			success: function (response: { success: boolean; data: ApiWordpressDatesResponse }) {
 				const dates = response.data;
 				console.log('dates', dates);
-
-				// Cache the fetched data
-				thisClone.dateCache[cacheKey] = dates;
 
 				thisClone.dates = dates;
 
@@ -243,18 +202,12 @@ class DateOverview {
 				thisClone.list.fillListData(dates);
 				thisClone.selector.fillSelectorData(dates);
 
-				// Display month
-				thisClone.calendar.showMonth(year, month);
-				thisClone.list.showMonth(year, month);
-
-				thisClone.fetchedOnce = true;
-
 				// Set filter by url params
 				thisClone.setFilterByUrlParams();
 
 				// get all elements with class .--sceleton and remove the class
-				document.querySelectorAll('.--sceleton').forEach((element) => {
-					element.classList.remove('--sceleton');
+				document.querySelectorAll('[data-sceleton]').forEach((element) => {
+					element.setAttribute('data-sceleton', 'false');
 				});
 			},
 		});
@@ -375,14 +328,17 @@ class DateOverviewCalendar {
 	}
 	generateEmptyMonthGrid(year: number, month: number): MonthGrid {
 		// Erster Tag des angegebenen Monats und Jahres
-		const firstDayOfMonth = new Date(`${year}-${month.toString().padStart(2, '0')}-01`);
-		firstDayOfMonth.setDate(firstDayOfMonth.getDate() - 1);
+		const firstDayOfMonth = toZonedTime(
+			new Date(`${year}-${month.toString().padStart(2, '0')}-01`),
+			'Europe/Berlin'
+		);
+		firstDayOfMonth.setDate(firstDayOfMonth.getDate());
 
 		// Erstelle den letzten Tag des angegebenen Monats und Jahres
-		const lastDayOfMonth = new Date(year, month, 1);
+		const lastDayOfMonth = toZonedTime(new Date(year, month, 1), 'Europe/Berlin');
 
 		// Festlegen des Startdatums unter Berücksichtigung des ersten Wochentags
-		const startDate = new Date(firstDayOfMonth);
+		const startDate = toZonedTime(new Date(firstDayOfMonth), 'Europe/Berlin');
 		startDate.setDate(startDate.getDate() - ((startDate.getDay() + 6) % 7)); // Anpassung an den ersten Wochentag
 
 		const monthGrid: MonthGridItem[] = [];
@@ -484,12 +440,10 @@ class DateOverviewCalendar {
 
 		// fill newDates with dates
 		dates.forEach((date) => {
-			const dateString = format(parseISO(date.date), 'yyyy-MM-dd');
-
 			this.monthGrids.forEach((monthGrid) => {
 				monthGrid.items.forEach((item) => {
 					// add products to monthGrid if date and month and year match
-					if (item.date === dateString) {
+					if (item.date === date.date) {
 						if (!item.products) item.products = [];
 						item.products.push(date.product);
 					}
@@ -497,9 +451,8 @@ class DateOverviewCalendar {
 			});
 		});
 
-		this.monthGrids.forEach((monthGrid) => {
-			this.renderGridItems(monthGrid.year, monthGrid.month);
-		});
+		// Re-Render the current month with the new data
+		this.showMonth(this.currentYear, this.currentMonth);
 	}
 
 	/*------------------------------------*/
@@ -511,7 +464,6 @@ class DateOverviewCalendar {
 		const monthGrid = this.monthGrids.find(
 			(monthGrid) => monthGrid.year === year && monthGrid.month === month
 		)?.items as MonthGridItem[];
-		console.log('Calendar: monthGrid', year, month, monthGrid);
 
 		if (!monthGrid) throw new Error('No monthGrid found');
 
@@ -548,8 +500,8 @@ class DateOverviewCalendar {
 		item.element = element;
 
 		// Add class .--past when date is in the past
-		const today = new Date();
-		const itemDate = new Date(item.date);
+		const today = toZonedTime(new Date(), 'Europe/Berlin');
+		const itemDate = toZonedTime(new Date(item.date), 'Europe/Berlin');
 		if (itemDate.setUTCHours(0, 0, 0, 0) < today.setUTCHours(0, 0, 0, 0)) {
 			item.element.classList.add('--past');
 		}
@@ -563,9 +515,7 @@ class DateOverviewCalendar {
 		const day = element.querySelector('[template-day]') as HTMLElement;
 		if (!day) throw new Error('No day found');
 		// add formatted day from this.currentMonth using Intl.DateTimeFormat
-		day.innerHTML = new Intl.DateTimeFormat('de-DE', {
-			day: 'numeric',
-		}).format(new Date(item.date));
+		day.innerHTML = format(parseISO(item.date), 'd');
 
 		// Return of item is not in current month
 		if (!item.currentMonth) return;
@@ -664,16 +614,50 @@ class DateOverviewCalendar {
 
 		this.monthLabelSlider.slideTo(monthIndex);
 	}
-	public setFilter(filter: Filter) {
+	public setFilter(filter: Filter, updateCurrentMonth: boolean = true) {
 		// Reset filter when filter is null
 		if (filter?.type === 'product' && filter.productId === 0) filter = null;
 
 		this.filter = filter;
 
+		// Show the first month with the filtered product
+		let firstMonth:
+			| {
+					year: number;
+					month: number;
+			  }
+			| undefined = undefined;
+		if (filter?.type === 'product' && updateCurrentMonth) {
+			if (filter.productId !== 0) {
+				// Get month of the first monthGrid with the given productId
+				firstMonth = this.monthGrids.find((monthGrid) => {
+					const monthGridItem = monthGrid.items.find((item) => {
+						if (!item.products || !item.currentMonth) return false;
+
+						if (filter.courseTimeId === undefined || filter.courseTimeId === 0) {
+							return item.products.find((product) => product.ID === filter.productId);
+						}
+
+						return item.products.find(
+							(product) =>
+								product.ID === filter.productId &&
+								product.courseTimeId === filter.courseTimeId
+						);
+					});
+
+					return monthGridItem !== undefined;
+				});
+			} else {
+				firstMonth = this.monthGrids[0];
+			}
+
+			if (firstMonth) this.showMonth(firstMonth?.year as number, firstMonth?.month as number);
+		}
+
 		// Set active state of all buttons
 		this.monthGrids.forEach((monthGrid) => {
 			monthGrid.items.forEach((item) => {
-				if (!item.element) throw new Error('No button found');
+				if (!item.element) return;
 
 				// Activate all buttons when identifier is null
 				if (filter === null) {
@@ -745,26 +729,6 @@ class DateOverviewCalendar {
 				});
 			});
 		});
-
-		// Show the first month with the filtered product
-		if (filter?.type === 'product') {
-			if (filter.productId !== 0) {
-				// Get month of the first monthGrid with the given productId
-				const firstMonth = this.monthGrids.find((monthGrid) => {
-					const monthGridItem = monthGrid.items.find((item) => {
-						if (!item.products || !item.currentMonth) return false;
-						// @ts-ignore
-						return item.products.find((product) => product.ID === filter.productId);
-					});
-
-					return monthGridItem !== undefined;
-				});
-				this.showMonth(firstMonth?.year as number, firstMonth?.month as number);
-			} else {
-				const firstMonth = this.monthGrids[0];
-				this.showMonth(firstMonth?.year as number, firstMonth?.month as number);
-			}
-		}
 	}
 
 	/*------------------------------------*/
@@ -847,9 +811,6 @@ class DateOverviewList {
 			const dateMonth = Number(format(parsedDate, 'MM'));
 			const dateDay = Number(format(parsedDate, 'dd'));
 
-			// date.date.date as string
-			const dateString = format(parsedDate, 'yyyy-MM-dd');
-
 			const monthList = this.monthLists.find(
 				(monthList) => monthList.year === dateYear && monthList.month === dateMonth
 			) as MonthList;
@@ -858,16 +819,15 @@ class DateOverviewList {
 
 			if (!monthList.items) monthList.items = [];
 			monthList.items.push({
-				date: dateString,
+				date: date.date,
 				day: dateDay,
 				month: dateMonth,
 				product: date.product,
 			});
 		});
 
-		this.monthLists.forEach((monthList) => {
-			this.showMonth(monthList.year, monthList.month);
-		});
+		// Re-Render the current month with the new data
+		this.showMonth(this.currentYear, this.currentMonth);
 	}
 
 	/*------------------------------------*/
@@ -878,16 +838,23 @@ class DateOverviewList {
 		const monthList = this.monthLists.find(
 			(monthList) => monthList.year === year && monthList.month === month
 		)?.items as MonthListItem[];
-		console.log('monthList', monthList);
 
 		if (!monthList) throw new Error('No monthList found');
 
 		this.container.innerHTML = '';
 
 		this.renderListMonth(year, month);
+		let hasDates = false;
 		monthList.forEach((item) => {
 			this.renderListItem(item);
+			hasDates = true;
 		});
+
+		// Render fallback if no dates are found
+		if (!hasDates) {
+			this.container.innerHTML =
+				'<div class="date-overview__list__empty-state">In diesen Monat sind aktuell keine Termine geplant.</div>';
+		}
 	}
 	renderMonthCategoryDatesList(year: number, month: number, cateogry: Category) {
 		// get all dates of the month with the given category
@@ -904,9 +871,17 @@ class DateOverviewList {
 
 		// Append a new section element for each month
 		this.renderListMonth(year, month);
+		let hasDates = false;
 		categoryDates.forEach((item) => {
 			this.renderListItem(item);
+			hasDates = true;
 		});
+
+		// Render fallback if no dates are found
+		if (!hasDates) {
+			this.container.innerHTML =
+				'<div class="date-overview__list__empty-state">Für diese Kategorie sind aktuell keine Termine verfügbar.</div>';
+		}
 	}
 	// Display all dates of a product in month sections
 	renderProductDatesList(productId: number, courseTimeId?: number) {
@@ -940,6 +915,7 @@ class DateOverviewList {
 		this.container.innerHTML = '';
 
 		// Append a new section element for each month
+		let hasDates = false;
 		productDates.forEach((monthList) => {
 			// Return of month has no dates
 			if (monthList.items.length === 0) return;
@@ -948,8 +924,8 @@ class DateOverviewList {
 
 			// Render empty state when no more upcoming dates in this month
 			const hasUpcomingDates = monthList.items.some((item) => {
-				const today = new Date();
-				const itemDate = new Date(item.date);
+				const today = toZonedTime(new Date(), 'Europe/Berlin');
+				const itemDate = toZonedTime(new Date(item.date), 'Europe/Berlin');
 				return itemDate >= today;
 			});
 			if (!hasUpcomingDates) {
@@ -963,14 +939,21 @@ class DateOverviewList {
 			// Render the upcoming dates
 			monthList.items.forEach((item) => {
 				this.renderListItem(item);
+				hasDates = true;
 			});
 		});
+
+		// Render fallback if no dates are found
+		if (!hasDates) {
+			this.container.innerHTML =
+				'<div class="date-overview__list__empty-state">Für dieses Kunstangebot sind aktuell keine Termine verfügbar.</div>';
+		}
 	}
 	// Render a single date item
 	renderListItem(item: MonthListItem) {
 		// Do not render Item if date is in the past
-		const today = new Date();
-		const itemDate = new Date(item.date);
+		const today = toZonedTime(new Date(), 'Europe/Berlin');
+		const itemDate = toZonedTime(new Date(item.date), 'Europe/Berlin');
 		if (itemDate.setUTCHours(0, 0, 0, 0) < today.setUTCHours(0, 0, 0, 0)) return;
 
 		if (!item.product) throw new Error('No product found');
@@ -999,7 +982,7 @@ class DateOverviewList {
 		// add formatted weekday from this.currentMonth using Intl.DateTimeFormat
 		weekday.innerHTML = new Intl.DateTimeFormat('de-DE', {
 			weekday: 'short',
-		}).format(new Date(item.date));
+		}).format(parseISO(item.date));
 
 		// select by template-month attribute
 		const month = element.querySelector('[template-month]') as HTMLElement;
@@ -1007,14 +990,14 @@ class DateOverviewList {
 		// add formatted month from this.currentMonth using Intl.DateTimeFormat
 		month.innerHTML = new Intl.DateTimeFormat('de-DE', {
 			month: 'short',
-		}).format(new Date(item.date));
+		}).format(parseISO(item.date));
 
 		const day = element.querySelector('[template-day]') as HTMLElement;
 		if (!day) throw new Error('No day found');
 		// add formatted day from this.currentMonth using Intl.DateTimeFormat
 		day.innerHTML = new Intl.DateTimeFormat('de-DE', {
 			day: 'numeric',
-		}).format(new Date(item.date));
+		}).format(parseISO(item.date));
 
 		const title = element.querySelector('[template-title]') as HTMLAnchorElement;
 		if (!title) throw new Error('No title found');
@@ -1088,8 +1071,8 @@ class DateOverviewList {
 
 		label.innerHTML = new Intl.DateTimeFormat('de-DE', {
 			month: 'long',
-			// year: "numeric",
-		}).format(new Date(year, month - 1));
+			year: 'numeric',
+		}).format(toZonedTime(new Date(year, month - 1), 'Europe/Berlin'));
 	}
 
 	/*------------------------------------*/
@@ -1120,6 +1103,7 @@ class DateOverviewList {
 	public showMonth(year: number, month: number) {
 		this.updateCurrentMonth(year, month);
 
+		// TODO: Add empty states for all variants
 		if (!this.filter) {
 			this.renderMonthDatesList(this.currentYear, this.currentMonth);
 			return;
@@ -1423,14 +1407,13 @@ class DateOverviewSelector {
 		if (courseTimes.length <= 1) return;
 
 		courseTimes.forEach((courseTime) => {
-			console.log(courseTime);
 			const button = document.createElement('button');
 			const span = document.createElement('span');
 
-			if (!courseTime.weekday) throw new Error('No weekday found');
+			if (typeof courseTime.weekday !== 'number') throw new Error('No weekday found');
 
 			// Set button label
-			span.textContent = formatter.weekday(courseTime.weekday);
+			span.textContent = courseTime.subtitle;
 
 			button.appendChild(span);
 			button.setAttribute('role', 'button');

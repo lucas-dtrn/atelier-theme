@@ -371,7 +371,7 @@ button {
 			cursor: pointer;
 		}
 
-		&.--sceleton {
+		&[data-sceleton='true'] {
 			.image,
 			.text {
 				opacity: 0;
@@ -671,11 +671,11 @@ button {
 			}
 		}
 
-		&.--sceleton {
+		&[data-sceleton='true'] {
 			margin-top: 0;
 			height: 82px;
 
-			& + .--sceleton {
+			& + [data-sceleton='true'] {
 				margin-top: 16px;
 			}
 		}
@@ -689,6 +689,10 @@ button {
 		border-radius: 16px;
 		border: 1px solid #e5e7eb;
 		color: $text--soft;
+	}
+
+	& > .date-overview__list__empty-state {
+		margin-top: 0;
 	}
 }
 
@@ -780,7 +784,7 @@ button {
 	}
 }
 
-.--sceleton {
+[data-sceleton='true'] {
 	position: relative;
 	overflow: hidden;
 

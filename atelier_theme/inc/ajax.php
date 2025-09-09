@@ -13,11 +13,8 @@ function myplugin_ajaxurl()
 
 function date_overview_get_product_dates()
 {
-    $year = $_POST['year'];
-    $month = $_POST['month'];
-    $yearEnd = $year + 1;
 
-    $url = BOOK_URL . "/api/wordpress/dates?month=$month&year=$year";
+    $url = BOOK_URL . "/api/wordpress/dates";
     $response = file_get_contents($url);
     if ($response === false) return [];
     $data = json_decode($response, true);
@@ -29,24 +26,26 @@ function date_overview_get_product_dates()
     /* ------------------------------------ */
 
     // Query dates
+    $today = date('Y-m-d'); // Heutiges Datum im Format JJJJ-MM-TT
+
     $holidayWorkshopDateIds = get_posts(array(
         'post_type' => 'h_workshop_date',
         'posts_per_page' => -1,
         'fields' => 'ids',
 
-        // Get all items with date in current month
+        // Alle Einträge ab heute erhalten
         'meta_query'     => array(
             'relation' => 'OR',
             array(
                 'key'     => 'date_1_date', // Name des ACF-Felds
-                'value'   => array($year . "-" . $month . "-01", $yearEnd . "-" . $month . "-31"), // Format: JJJJ-MM-TT
-                'compare' => 'BETWEEN', // Abgleich auf einen Wert zwischen dem 1. und letzten Tag des Monats
+                'value'   => $today, // Format: JJJJ-MM-TT
+                'compare' => '>=', // Abgleich auf einen Wert ab heute
                 'type'    => 'DATE',
             ),
             array(
                 'key'     => 'date_2_date', // Name des ACF-Felds
-                'value'   => array($year . "-" . $month . "-01", $yearEnd . "-" . $month . "-31"), // Format: JJJJ-MM-TT
-                'compare' => 'BETWEEN', // Abgleich auf einen Wert zwischen dem 1. und letzten Tag des Monats
+                'value'   => $today, // Format: JJJJ-MM-TT
+                'compare' => '>=', // Abgleich auf einen Wert ab heute
                 'type'    => 'DATE',
             ),
         ),

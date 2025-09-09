@@ -68,7 +68,7 @@ $calendarGrid = getCalendarGrid($target_year, $target_month);
             <?php endif; ?>
         </div>
 
-        <div id="date-overview__calendar" class="date-overview__calendar --sceleton">
+        <div id="date-overview__calendar" class="date-overview__calendar" data-sceleton="true">
 
             <!-- Month controls -->
             <button type="button" id="calendar__prev" class="date-overview__calendar__prev" data-active="false">
@@ -144,7 +144,7 @@ $calendarGrid = getCalendarGrid($target_year, $target_month);
 <div class="inner">
     <div class="date-overview__content">
         <div id="date-overview__selector" class="date-overview__selector">
-            <label class="--sceleton">
+            <label data-sceleton="true">
                 <div class="image">
                     <img template-product-image></img>
                 </div>
@@ -193,23 +193,23 @@ $calendarGrid = getCalendarGrid($target_year, $target_month);
         </div>
 
         <div id="date-overview__list" class="date-overview__list">
-            <div class="date-overview__list__item --sceleton">
+            <div class="date-overview__list__item" data-sceleton="true">
                 <div class="date"></div>
                 <div class="content"></div>
             </div>
-            <div class="date-overview__list__item --sceleton">
+            <div class="date-overview__list__item" data-sceleton="true">
                 <div class="date"></div>
                 <div class="content"></div>
             </div>
-            <div class="date-overview__list__item --sceleton">
+            <div class="date-overview__list__item" data-sceleton="true">
                 <div class="date"></div>
                 <div class="content"></div>
             </div>
-            <div class="date-overview__list__item --sceleton">
+            <div class="date-overview__list__item" data-sceleton="true">
                 <div class="date"></div>
                 <div class="content"></div>
             </div>
-            <div class="date-overview__list__item --sceleton">
+            <div class="date-overview__list__item" data-sceleton="true">
                 <div class="date"></div>
                 <div class="content"></div>
             </div>
