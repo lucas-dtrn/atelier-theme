@@ -1,0 +1,13 @@
+{
+	"name": "schulederphantasie",
+	"title": "Schule der Phantasie",
+	"category": "inhaltselemente",
+	"keywords": ["schule der phantasie", ""],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "schulederphantasie.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

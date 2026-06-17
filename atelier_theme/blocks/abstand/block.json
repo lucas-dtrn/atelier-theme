@@ -1,0 +1,13 @@
+{
+	"name": "abstand",
+	"title": "Abstand",
+	"category": "inhaltselemente",
+	"keywords": ["abstand", "spacing"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "abstand.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

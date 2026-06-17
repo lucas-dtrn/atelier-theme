@@ -1,0 +1,13 @@
+{
+	"name": "usp",
+	"title": "USP",
+	"category": "inhaltselemente",
+	"keywords": ["usp"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "usp.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

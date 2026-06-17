@@ -1,0 +1,14 @@
+{
+	"name": "button",
+	"title": "Button",
+	"description": "Eine verlinkte Schaltfläche.",
+	"category": "inhaltselemente",
+	"keywords": ["button", "cta"],
+	"acf": {
+		"mode": "auto",
+		"renderTemplate": "button.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

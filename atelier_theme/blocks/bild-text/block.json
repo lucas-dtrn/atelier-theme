@@ -1,0 +1,13 @@
+{
+	"name": "bild-text",
+	"title": "Bild & Text",
+	"category": "inhaltselemente",
+	"keywords": ["bild", "text"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "bild-text.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

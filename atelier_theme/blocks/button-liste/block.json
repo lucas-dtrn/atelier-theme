@@ -1,0 +1,13 @@
+{
+	"name": "button-liste",
+	"title": "Button Liste",
+	"category": "inhaltselemente",
+	"keywords": ["button", "liste"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "button-liste.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

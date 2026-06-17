@@ -1,0 +1,13 @@
+{
+	"name": "usp-liste",
+	"title": "USP Liste",
+	"category": "inhaltselemente",
+	"keywords": ["usp", "liste"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "usp-liste.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

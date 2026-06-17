@@ -1,0 +1,13 @@
+{
+	"name": "home-banner",
+	"title": "Home Banner",
+	"category": "inhaltselemente",
+	"keywords": ["home", "banner"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "home-banner.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

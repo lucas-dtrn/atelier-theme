@@ -1,0 +1,13 @@
+{
+	"name": "banner",
+	"title": "Banner",
+	"category": "inhaltselemente",
+	"keywords": ["abstand"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "banner.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

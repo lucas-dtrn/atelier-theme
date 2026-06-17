@@ -1,0 +1,13 @@
+{
+	"name": "kunstangebot",
+	"title": "Kunstangebot",
+	"category": "inhaltselemente",
+	"keywords": ["angebote", "liste"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "kunstangebot.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

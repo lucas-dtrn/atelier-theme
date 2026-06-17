@@ -1,0 +1,13 @@
+{
+	"name": "kontakt-hero-banner",
+	"title": "Kontakt Hero Banner",
+	"category": "inhaltselemente",
+	"keywords": ["kontakt", "hero", "banner"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "kontakt-hero-banner.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

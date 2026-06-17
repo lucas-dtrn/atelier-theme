@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Related Products
  *
@@ -15,41 +16,55 @@
  * @version     3.9.0
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (!defined('ABSPATH')) {
 	exit;
 }
 
-if ( $related_products ) : ?>
+if ($related_products) : ?>
 
-	<section class="wrapper related products">
+	<section class="produktslider related products --hide-badges">
 
 		<?php
-		$heading = apply_filters( 'woocommerce_product_related_products_heading', __( 'Related products', 'woocommerce' ) );
-
-		if ( $heading ) :
-			?>
-			<!-- <h2><?php echo esc_html( $heading ); ?></h2> -->
-			<h2 class="headline">Ähnliche Produkte</h2>
+		$heading = apply_filters('woocommerce_product_related_products_heading', __('Related products', 'woocommerce'));
+		if ($heading) : ?>
+			<div class="produktslider__header">
+				<div>
+					<h2><?php echo esc_html($heading); ?></h2>
+				</div>
+			</div>
 		<?php endif; ?>
-		
-		<?php woocommerce_product_loop_start(); ?>
 
-			<?php foreach ( $related_products as $related_product ) : ?>
+		<div class="slider__container">
+			<div class="swiper">
+				<div class="swiper-wrapper">
 
-					<?php
-					$post_object = get_post( $related_product->get_id() );
+					<?php foreach ($related_products as $related_product) : ?>
 
-					setup_postdata( $GLOBALS['post'] =& $post_object ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited, Squiz.PHP.DisallowMultipleAssignments.Found
+						<div class="swiper-slide">
+							<?php
+							$post_object = get_post($related_product->get_id());
+							setup_postdata($GLOBALS['post'] = &$post_object); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited, Squiz.PHP.DisallowMultipleAssignments.Found
+							wc_get_template_part('content', 'product');
+							?>
+						</div>
 
-					wc_get_template_part( 'content', 'product' );
-					?>
+					<?php endforeach; ?>
 
-			<?php endforeach; ?>
+				</div>
 
-		<?php woocommerce_product_loop_end(); ?>
+				<div class="slider__controls">
+					<div class="slider__buttons">
+						<div class="slider__button --prev"></div>
+						<div class="slider__button --next"></div>
+					</div>
+
+					<div class="slider__pagination"></div>
+				</div>
+			</div>
+		</div>
 
 	</section>
-	<?php
-endif;
 
-wp_reset_postdata();
+<?php endif; ?>
+
+<?php wp_reset_postdata();

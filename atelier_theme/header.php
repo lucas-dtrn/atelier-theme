@@ -4,20 +4,22 @@ $_ENV = include ($_SERVER['DOCUMENT_ROOT'] . '/config/env.php') ?? false;
 // if (WP_DEBUG) d($_ENV);
 
 /*------------------------------------*/
-/* 	Define website mode depending on page
+/* Website mode  */
 /*------------------------------------*/
+$setWebsiteMode = 'atelier';
+
+// Set website mode depending on ACF field
+if (get_field('seitenkategorie')) $setWebsiteMode = get_field('seitenkategorie');
+
+// Define website mode depending on page
 if (is_page('shop') || is_woocommerce() || is_shop() || is_product_category() || is_product_tag() || is_product() || is_cart() || is_checkout() || is_account_page() || is_page('sendungsverfolgung')) {
     $setWebsiteMode = 'shop';
-} else {
-    $setWebsiteMode = 'atelier';
 }
-
-// // override websiteMode with ACF field
-// $seitenkategorie = get_field('seitenkategorie');
-// if(isset($seitenkategorie)) $setWebsiteMode = $seitenkategorie;
 
 // override websiteMode with URL parameter
 if (isset($_GET['websiteMode'])) $setWebsiteMode = $_GET['websiteMode'];
+
+if ($setWebsiteMode === 'auto') $setWebsiteMode = 'atelier'; // TODO - Remove auto mode
 
 global $websiteMode;
 $websiteMode = $setWebsiteMode; // Passe den Wert der globalen Variable an
@@ -58,24 +60,21 @@ if (is_404()) $headerHiddenOnLoad = false;
 
     <?php wp_head(); ?>
 
-    <?php if (is_page('buchung')) : ?>
-        <script type="text/javascript" src="<?= get_template_directory_uri() ?>/js/pages/booking.js" defer></script>
-    <?php endif; ?>
-
     <?php if (is_page('galerie')) : ?>
-        <script type="text/javascript" src="<?= get_template_directory_uri() ?>/js/pages/gallery.js" defer></script>
+        <script type="text/javascript" src="<?= get_template_directory_uri() ?>/assets/js/gallery.js" defer></script>
     <?php endif; ?>
 </head>
 
 <body <?php body_class(); ?>>
 
-    <?php get_template_part('template-parts/booking-reminder') ?>
+    <?php get_template_part('components/booking-reminder') ?>
 
-    <div id='website-mode' data-website-mode="<?= $websiteMode ?>"></div>
+    <!-- Google Tag Manager -->
+    <div id="gtm-values" data-website-mode="<?= $websiteMode ?>" data-traffic-type="<?= current_user_can('administrator') || ENV === 'development' ? 'internal' : 'external' ?>"></div>
 
     <header class="header <?= $headerHiddenOnLoad ? '--hidden-on-load' : '' ?> <?= is_page("Kunstangebote") ? "--hidden" : ''; ?> header--<?= $websiteMode ?>" data-show-offset="<?= $header_hidden_offset ?>">
 
-        <?php get_template_part('template-parts/header-bar', '', array('type' => $websiteMode, 'nav' => true)); ?>
+        <?php get_template_part('components/header-bar', '', array('type' => $websiteMode, 'nav' => true)); ?>
 
         <div class="header__dropdown header__dropdown__mobile" style="display:none;">
 

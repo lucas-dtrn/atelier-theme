@@ -1,0 +1,15 @@
+{
+	"name": "page-start",
+	"title": "Seitenanfang",
+	"category": "inhaltselemente",
+	"acf": {
+		"mode": "preview",
+		"renderTemplate": "page-start.php"
+	},
+	"supports": {
+		"anchor": true,
+		"align": true,
+		"jsx": true,
+		"mode": false
+	}
+}

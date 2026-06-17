@@ -1,0 +1,13 @@
+{
+	"name": "produktslider",
+	"title": "Produktslider",
+	"category": "inhaltselemente",
+	"keywords": ["produkt", "slider"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "produktslider.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

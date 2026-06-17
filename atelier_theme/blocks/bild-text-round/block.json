@@ -1,0 +1,13 @@
+{
+	"name": "bild-text-round",
+	"title": "Bild & Text Rund",
+	"category": "inhaltselemente",
+	"keywords": ["bild", "text", "rund"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "bild-text-round.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

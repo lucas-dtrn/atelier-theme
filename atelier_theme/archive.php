@@ -5,7 +5,6 @@
     <section>
         <?php
         $postType = get_queried_object()->name;
-        $category = $postType; // TODO: Change to $postType
         $options = $postType . '_options';
         $color = load_product_colors($postType);
         $plural = get_field('plural', $options);
@@ -16,7 +15,7 @@
         <!-- Hero banner -->
         <div class="page__start category__header">
 
-            <?php get_template_part('template-parts/header-bar', '', array('type' => 'atelier', 'color' => 'white', 'drop' => false, 'hero' => true)); ?>
+            <?php get_template_part('components/header-bar', '', array('type' => 'atelier', 'color' => 'white', 'drop' => false, 'hero' => true)); ?>
 
             <div class="wrapper header__content">
 
@@ -34,7 +33,7 @@
                 }
                 ?>
 
-                <?php get_template_part('template-parts/button', 'link', array('color' => $color, 'direction' => 'left', 'button' => array('title' => 'Zurück zur Übersicht', 'url' => get_site_url() . '/#' . $postType))); ?>
+                <?php get_template_part('components/button', 'link', array('color' => $color, 'direction' => 'left', 'button' => array('title' => 'Zurück zur Übersicht', 'url' => get_site_url() . '/#' . $postType))); ?>
 
                 <div class="header__text">
 
@@ -59,11 +58,11 @@
 
                     <?php if ($post_count > 0) : ?>
                         <?php if ($postType !== 'course') : ?>
-                            <?php get_template_part('template-parts/button', '', array('color' => $color, 'button' => array('title' => $plural . ' entdecken', 'url' => '#list'))); ?>
+                            <?php get_template_part('components/button', '', array('color' => $color, 'button' => array('title' => $plural . ' entdecken', 'url' => '#list'))); ?>
                         <?php else : ?>
                             <div class="two-buttons">
-                                <?php get_template_part('template-parts/button', '', array('color' => 'blue', 'class' => 'button--filter --child', 'button' => array('title' => 'Für Kinder', 'url' => '#list'))); ?>
-                                <?php get_template_part('template-parts/button', '', array('color' => 'purple', 'class' => 'button--filter --adult', 'button' => array('title' => 'Für Erwachsene', 'url' => '#list'))); ?>
+                                <?php get_template_part('components/button', '', array('color' => 'blue', 'class' => 'button--filter --child', 'button' => array('title' => 'Für Kinder', 'url' => '#list'))); ?>
+                                <?php get_template_part('components/button', '', array('color' => 'purple', 'class' => 'button--filter --adult', 'button' => array('title' => 'Für Erwachsene', 'url' => '#list'))); ?>
                             </div>
                         <?php endif; ?>
                     <?php endif; ?>
@@ -79,7 +78,7 @@
             </div>
 
 
-            <?php get_template_part('template-parts/paper'); ?>
+            <?php get_template_part('components/paper'); ?>
             <img class="background__circle" src="<?= get_template_directory_uri() ?>/assets/img/website/kontakt/kontakt_background_circle.svg" alt="">
 
         </div>
@@ -104,7 +103,7 @@
                 );
             endwhile; ?>
 
-            <?php get_template_part('template-parts/usp-tiles', '', array('items' => $items)) ?>
+            <?php get_template_part('components/usp-tiles', '', array('items' => $items)) ?>
             <div class="space-large"></div>
         <?php endif; ?>
 
@@ -114,7 +113,7 @@
             <?php if ($postType !== 'course') : ?>
 
                 <!-- Anzahl der Ergebnisse -->
-                <?php get_template_part('template-parts/kunstangebot/product-count', '', array('label' => $post_count > 1 ? $plural : translateString($postType), 'value' => $post_count)); ?>
+                <?php get_template_part('components/kunstangebot/product-count', '', array('label' => $post_count > 1 ? $plural : translateString($postType), 'value' => $post_count)); ?>
 
             <?php else : ?>
 
@@ -123,10 +122,10 @@
                     <div class="filter__button button--filter --child">Kinder</div>
 
                     <div class="filter__count">
-                        <?php get_template_part('template-parts/kunstangebot/product-count', '', array('label' => $post_count > 1 ? $plural : translateString($postType), 'value' => $post_count)); ?>
+                        <?php get_template_part('components/kunstangebot/product-count', '', array('label' => $post_count > 1 ? $plural : translateString($postType), 'value' => $post_count)); ?>
 
                         <div class="filter__reset --hidden">
-                            <?php get_template_part('template-parts/icon-feather', '', array('icon' => 'trash')); ?>
+                            <?php get_template_part('components/icon-feather', '', array('icon' => 'trash')); ?>
                             <span>Filter löschen</span>
                         </div>
                     </div>
@@ -139,30 +138,38 @@
         <?php endif; ?>
 
         <!-- Ferienprogramm -->
-        <!-- <?php if ($postType == "holiday_workshop") : ?>
+        <?php if ($postType == "holiday_workshop" && get_field('rabattaktion_einblenden', $options)) :
+            $rabattaktion_subline = get_field('rabattaktion_subline', $options);
+            $rabattaktion_uberschrift = get_field('rabattaktion_uberschrift', $options);
+            $rabattaktion_stufen = get_field('rabattaktion_stufen', $options);
+            $rabattaktion_beschreibung = get_field('rabattaktion_beschreibung', $options);
+        ?>
+
             <div class="ferienprogramm__discount wrapper">
-                <h6>Rabattaktion</h6>
-                <h3>Buche mehrere Workshops</h3>
-                <div class="discount__list">
-                    <div class="discount__item">
-                        <h4>-10<span>%</span></h4>
-                        <span class="span">Rabatt ab</span>
-                        <h5>2 Workshops</h5>
+                <h6><?= $rabattaktion_subline ?></h6>
+                <h3><?= $rabattaktion_uberschrift ?></h3>
+
+                <?php if (!empty($rabattaktion_stufen)) : ?>
+                    <div class="discount__list">
+                        <?php foreach ($rabattaktion_stufen as $step) :
+                            $rabatt = $step['rabatt'];
+                            $ab = $step['ab'];
+                        ?>
+
+                            <div class="discount__item">
+                                <h4>-<?= $rabatt ?><span>%</span></h4>
+                                <span class="span"><?= __('Rabatt ab', 'atelier') ?></span>
+                                <h5><?= $ab ?></h5>
+                            </div>
+
+                        <?php endforeach; ?>
                     </div>
-                    <div class="discount__item">
-                        <h4>-15<span>%</span></h4>
-                        <span class="span">Rabatt ab</span>
-                        <h5>3 Workshops</h5>
-                    </div>
-                    <div class="discount__item">
-                        <h4>-20<span>%</span></h4>
-                        <span class="span">Rabatt ab</span>
-                        <h5>4 Workshops</h5>
-                    </div>
-                </div>
-                <p>Der Preisnachlass wird auf alle gebuchten Workshops angewendet. Du bekommst den Preisnachlass beim letzten Workshopbesuch zurückerstattet. Das Angebot gilt nur für die Buchung von Workshops im Rahmen des Ferienprogrammes.</p>
+                <?php endif; ?>
+
+                <p><?= $rabattaktion_beschreibung ?></p>
             </div>
-        <?php endif; ?> -->
+
+        <?php endif; ?>
 
         <div class="space-medium"></div>
 

@@ -5,8 +5,7 @@ Custom Post Types
 add_action('init', 'create_post_type_atelier'); // Add our HTML5 Blank Custom Post Type
 add_action('init', 'create_post_types_kunstangebote'); // Add our HTML5 Blank Custom Post Type
 
-function create_post_type_atelier()
-{
+function create_post_type_atelier() {
 
     register_taxonomy('course_days', array('books'), array(
         'hierarchical' => true,
@@ -28,6 +27,11 @@ function create_post_type_atelier()
         'show_admin_column' => true,
         'query_var' => true,
         'rewrite' => array('slug' => 'wochentag'),
+
+        // disable archive, single and seo indexing
+        "public" => false,
+        "has_archive" => false,
+        "publicly_queryable" => false,
     ));
 
     register_taxonomy('product_badge', 'product', array(
@@ -43,7 +47,7 @@ function create_post_type_atelier()
             'update_item' => __('Badge aktualisieren'),
             'add_new_item' => __('Neuen Badge erstellen'),
             'new_item_name' => __('Neuer Badge Name'),
-            'menu_name' => __('Badge'),
+            'menu_name' => __('Badges'),
         ),
         'show_ui' => true,
         'show_in_rest' => true,
@@ -70,14 +74,17 @@ function create_post_type_atelier()
         'show_in_rest' => true,
         'show_admin_column' => true,
         'query_var' => true,
-        // 'rewrite' => array('slug' => 'wochentag'),
+
+        // disable archive, single and seo indexing
+        "public" => false,
+        "has_archive" => false,
+        "publicly_queryable" => false,
     ));
 }
 
-function create_post_types_kunstangebote()
-{
+function create_post_types_kunstangebote() {
     /* ------------------------------------ */
-    /*  Kurse
+    /* Kurse */
     /* ------------------------------------ */
 
     // Registriere den Post Type Kurse
@@ -106,7 +113,7 @@ function create_post_types_kunstangebote()
                 'thumbnail'
             ), // Go to Dashboard Custom HTML5 Blank post for supports
             'taxonomies' => array(
-                'course_dates'
+                'course_date'
             ),
             'can_export' => true, // Allows export in Tools > Export
             'show_in_rest' => true,
@@ -148,13 +155,17 @@ function create_post_types_kunstangebote()
             'supports' => array(
                 'editor'
             ),
-            'taxonimies' => array(
+            'taxonomies' => array(
                 'course_time'
             ),
-            'public' => true,
-            'has_archive' => true,
-            'can_export' => true, // Allows export in Tools > Export
-            // 'show_in_rest' => true,
+            // Allows export in Tools > Export
+            'can_export' => true,
+            "public" => true,
+
+            // disable archive, single and seo indexing
+            "has_archive" => false,
+            "publicly_queryable" => false,
+
         )
     );
 
@@ -180,8 +191,7 @@ function create_post_types_kunstangebote()
 
     // Disable course_date single page
     add_action('template_redirect', 'wpse_128636_redirect_post');
-    function wpse_128636_redirect_post()
-    {
+    function wpse_128636_redirect_post() {
         if (is_singular('course_date')) :
             wp_redirect(home_url(), 301);
             exit;
@@ -189,7 +199,7 @@ function create_post_types_kunstangebote()
     }
 
     /* ------------------------------------ */
-    /*  Workshops
+    /* NOTE: Workshops */
     /* ------------------------------------ */
 
     // Registriere den Post Type Workshops
@@ -254,14 +264,19 @@ function create_post_types_kunstangebote()
             'supports' => array(
                 'editor'
             ),
-            'public' => true,
-            'can_export' => true, // Allows export in Tools > Export
-            // 'show_in_rest' => true,
+            // Allows export in Tools > Export
+            'can_export' => true,
+            "public" => true,
+
+            // disable archive, single and seo indexing
+            "has_archive" => false,
+            "publicly_queryable" => false,
+
         )
     );
 
     /* ------------------------------------ */
-    /*  Geburtstage
+    /* NOTE: Geburtstage */
     /* ------------------------------------ */
 
     // Registriere den Post Type Geburtstage
@@ -308,7 +323,7 @@ function create_post_types_kunstangebote()
     }
 
     /* ------------------------------------ */
-    /*  Kunstevents
+    /* NOTE: Kunstevents */
     /* ------------------------------------ */
 
     // Registriere den Post Type Kunstevents
@@ -355,7 +370,7 @@ function create_post_types_kunstangebote()
     }
 
     /* ------------------------------------ */
-    /*  Ferienworkshops
+    /* NOTE: Ferienworkshops */
     /* ------------------------------------ */
 
     // Registriere den Post Type Ferienworkshops
@@ -419,9 +434,13 @@ function create_post_types_kunstangebote()
                 'not_found' => __('Keine Ferienworkshoptermine gefunden', 'atelier'),
                 'not_found_in_trash' => __('Keine Ferienworkshoptermine im Papierkorb gefunden', 'atelier')
             ),
-            'public' => true,
-            'can_export' => true, // Allows export in Tools > Export
-            // 'show_in_rest' => true,
+            // Allows export in Tools > Export
+            'can_export' => true,
+            "public" => true,
+
+            // disable archive and seo indexing
+            "has_archive" => false,
+            "publicly_queryable" => false,
         )
     );
 }
@@ -432,8 +451,7 @@ add_action(
     'admin_head-edit.php',
     'wpse152971_edit_post_change_title_in_list'
 );
-function wpse152971_edit_post_change_title_in_list()
-{
+function wpse152971_edit_post_change_title_in_list() {
     add_filter(
         'the_title',
         'wpse152971_construct_new_title',
@@ -442,8 +460,7 @@ function wpse152971_edit_post_change_title_in_list()
     );
 }
 
-function wpse152971_construct_new_title($title, $postId)
-{
+function wpse152971_construct_new_title($title, $postId) {
     $postType = get_post_type($postId);
     $date_format = 'j. F Y';
 

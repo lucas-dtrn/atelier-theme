@@ -63,12 +63,10 @@ function atelier_blank_view_article($more) {
 
 // Disable SEO for development
 function custom_noindex_setting() {
-    $site_url = get_site_url();
-
-    if (stripos($site_url, 'dev') !== false) {
-        update_option('blog_public', 'no');
+    if (defined('ROBOTS_ALLOWED') && ROBOTS_ALLOWED === false) {
+        update_option('blog_public', 0); // Indexierung deaktivieren
     } else {
-        update_option('blog_public', 'yes');
+        update_option('blog_public', 1); // Indexierung aktivieren
     }
 }
 

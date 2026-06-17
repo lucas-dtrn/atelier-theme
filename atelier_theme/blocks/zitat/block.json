@@ -1,0 +1,13 @@
+{
+	"name": "zitat",
+	"title": "Zitat",
+	"category": "inhaltselemente",
+	"keywords": ["Zitat"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "zitat.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

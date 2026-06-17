@@ -1,0 +1,13 @@
+{
+	"name": "video",
+	"title": "Video",
+	"category": "inhaltselemente",
+	"keywords": ["video"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "video.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

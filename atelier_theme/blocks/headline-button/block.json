@@ -1,0 +1,13 @@
+{
+	"name": "headline-button",
+	"title": "Überschrift & Button",
+	"category": "inhaltselemente",
+	"keywords": ["überschrift", "button"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "headline-button.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

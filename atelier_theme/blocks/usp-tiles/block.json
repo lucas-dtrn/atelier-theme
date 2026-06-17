@@ -1,0 +1,13 @@
+{
+	"name": "usp-tiles",
+	"title": "USP Kacheln",
+	"category": "inhaltselemente",
+	"keywords": ["usp", "tiles"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "usp-tiles.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

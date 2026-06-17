@@ -1,0 +1,13 @@
+{
+	"name": "map",
+	"title": "Karte",
+	"category": "inhaltselemente",
+	"keywords": ["map", "karte"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "map.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

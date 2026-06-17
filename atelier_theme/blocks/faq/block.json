@@ -1,0 +1,13 @@
+{
+	"name": "faq",
+	"title": "FAQ",
+	"category": "inhaltselemente",
+	"keywords": ["faq", "fragen", "antworten"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "faq.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

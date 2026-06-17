@@ -1,0 +1,13 @@
+{
+	"name": "bilder-slider",
+	"title": "Bilder Slider",
+	"category": "inhaltselemente",
+	"keywords": ["bilder", "slider"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "bilder-slider.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

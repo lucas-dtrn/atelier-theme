@@ -1,0 +1,13 @@
+{
+	"name": "uber-mich",
+	"title": "Über mich",
+	"category": "inhaltselemente",
+	"keywords": ["über", "mich"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "uber-mich.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

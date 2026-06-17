@@ -1,0 +1,13 @@
+{
+	"name": "angebote-liste",
+	"title": "Angebote Liste",
+	"category": "inhaltselemente",
+	"keywords": ["angebote", "liste"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "angebote-liste.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

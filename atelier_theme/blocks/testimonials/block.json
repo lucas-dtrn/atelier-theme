@@ -1,0 +1,13 @@
+{
+	"name": "testimonials",
+	"title": "Testimonials",
+	"category": "inhaltselemente",
+	"keywords": ["testimonials"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "testimonials.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

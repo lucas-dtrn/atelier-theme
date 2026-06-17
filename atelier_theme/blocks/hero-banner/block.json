@@ -1,0 +1,13 @@
+{
+	"name": "hero-banner",
+	"title": "Hero Banner",
+	"category": "inhaltselemente",
+	"keywords": ["hero", "banner"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "hero-banner.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

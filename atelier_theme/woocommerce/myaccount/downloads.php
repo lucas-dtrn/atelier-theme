@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Downloads
  *
@@ -14,10 +15,10 @@
  *
  * @see     https://docs.woocommerce.com/document/template-structure/
  * @package WooCommerce\Templates
- * @version 3.2.0
+ * @version 7.8.0
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (!defined('ABSPATH')) {
 	exit;
 }
 
@@ -27,28 +28,27 @@ $has_downloads = (bool) $downloads;
 
 <div class="wrapper account__content account__content--downloads">
 
-	<?php do_action( 'woocommerce_before_account_downloads', $has_downloads ); ?>
+	<?php do_action('woocommerce_before_account_downloads', $has_downloads); ?>
 
 	<h2>Downloads</h2>
 
-	<?php if ( $has_downloads ) : ?>
+	<?php if ($has_downloads) : ?>
 
-		<?php do_action( 'woocommerce_before_available_downloads' ); ?>
+		<?php do_action('woocommerce_before_available_downloads'); ?>
 
-		<?php do_action( 'woocommerce_available_downloads', $downloads ); ?>
+		<?php do_action('woocommerce_available_downloads', $downloads); ?>
 
-		<?php do_action( 'woocommerce_after_available_downloads' ); ?>
+		<?php do_action('woocommerce_after_available_downloads'); ?>
 
 	<?php else : ?>
-		<h3>Noch keine Downloads</h3>
-		<!-- <div class="woocommerce-Message woocommerce-Message--info woocommerce-info">
-			<a class="woocommerce-Button button" href="<?php echo esc_url( apply_filters( 'woocommerce_return_to_shop_redirect', wc_get_page_permalink( 'shop' ) ) ); ?>">
-				<?php esc_html_e( 'Browse products', 'woocommerce' ); ?>
-			</a>
-			<?php esc_html_e( 'No downloads available yet.', 'woocommerce' ); ?>
-		</div> -->
+
+		<?php
+		$wp_button_class = wc_wp_theme_get_element_class_name('button') ? ' ' . wc_wp_theme_get_element_class_name('button') : '';
+		wc_print_notice(esc_html__('No downloads available yet.', 'woocommerce') . ' <a class="button wc-forward' . esc_attr($wp_button_class) . '" href="' . esc_url(apply_filters('woocommerce_return_to_shop_redirect', wc_get_page_permalink('shop'))) . '">' . esc_html__('Browse products', 'woocommerce') . '</a>', 'notice'); // phpcs:ignore WooCommerce.Commenting.CommentHooks.MissingHookComment 
+		?>
+
 	<?php endif; ?>
 
-	<?php do_action( 'woocommerce_after_account_downloads', $has_downloads ); ?>
+	<?php do_action('woocommerce_after_account_downloads', $has_downloads); ?>
 
 </div>

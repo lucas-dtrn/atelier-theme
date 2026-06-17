@@ -1,0 +1,13 @@
+{
+	"name": "atelier-entdecken",
+	"title": "Atelier entdecken",
+	"category": "inhaltselemente",
+	"keywords": ["atelier", "entdecken"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "atelier-entdecken.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

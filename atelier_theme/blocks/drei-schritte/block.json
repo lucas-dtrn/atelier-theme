@@ -1,0 +1,13 @@
+{
+	"name": "drei-schritte",
+	"title": "3 Schritte",
+	"category": "inhaltselemente",
+	"keywords": ["drei", "schritte"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "drei-schritte.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

@@ -1,0 +1,13 @@
+{
+	"name": "shop-hero-banner",
+	"title": "Shop Hero Banner",
+	"category": "inhaltselemente",
+	"keywords": ["shop", "hero", "banner"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "shop-hero-banner.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

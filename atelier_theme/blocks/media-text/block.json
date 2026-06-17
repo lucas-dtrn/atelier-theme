@@ -1,0 +1,13 @@
+{
+	"name": "media-text",
+	"title": "Media & Test",
+	"category": "inhaltselemente",
+	"keywords": ["media", "text"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "media-text.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

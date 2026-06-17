@@ -1,0 +1,13 @@
+{
+	"name": "galerie-ausstellung",
+	"title": "Galerie Ausstellung",
+	"category": "inhaltselemente",
+	"keywords": ["galerie", "ausstellung"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "galerie-ausstellung.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

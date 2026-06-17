@@ -1,0 +1,13 @@
+{
+	"name": "newsletter",
+	"title": "Newsletter",
+	"category": "inhaltselemente",
+	"keywords": ["newsletter", "brevo"],
+	"acf": {
+		"mode": "edit",
+		"renderTemplate": "newsletter.php"
+	},
+	"supports": {
+		"anchor": true
+	}
+}

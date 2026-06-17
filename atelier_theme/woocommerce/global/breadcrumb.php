@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Shop breadcrumb
  *
@@ -16,37 +17,37 @@
  * @see         woocommerce_breadcrumb()
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (!defined('ABSPATH')) {
 	exit;
 }
 
-if ( ! empty( $breadcrumb ) ) {
+if (!empty($breadcrumb)) {
 
 	echo $wrap_before;
 
 	$count = count($breadcrumb);
 
-	foreach ( $breadcrumb as $key => $crumb ) {
-		
-		if (--$count <= 0) {
-			break;
-		}
+	foreach ($breadcrumb as $key => $crumb) {
 
 		echo $before;
 
-		if ( ! empty( $crumb[1] ) && sizeof( $breadcrumb ) !== $key + 1 ) {
-			echo '<a href="' . esc_url( $crumb[1] ) . '">' . esc_html( $crumb[0] ) . '</a>';
+		if (!empty($crumb[1]) && sizeof($breadcrumb) !== $key + 1) {
+			echo '<a href="' . esc_url($crumb[1]) . '" itemprop="item">' . esc_html($crumb[0]) . '</a>';
 		} else {
-			echo esc_html( $crumb[0] );
+			echo '<span>' . esc_html($crumb[0]) . '</span>';
+		}
+
+		echo '<meta itemprop="position" content="' . $key + 1 . '">';
+		echo '<meta itemprop="name" content="' . esc_html($crumb[0]) . '">';
+
+		if (sizeof($breadcrumb) !== $key + 1) {
+			echo $delimiter;
 		}
 
 		echo $after;
-
-		if ( sizeof( $breadcrumb ) !== $key + 1 ) {
-			echo $delimiter;
-		}
 	}
 
-	echo $wrap_after;
+	echo $test;
 
+	echo $wrap_after;
 }
